@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt-nodejs');
 const cors = require('cors');
 const knex = require('knex');
+const morgan = require('morgan');
 
 const register = require('./controllers/register');
 const signin = require('./controllers/signin');
@@ -11,18 +12,21 @@ const image = require('./controllers/image');
 
 const db = knex({
   client: 'pg',
-  connection: {
-    host : '127.0.0.1',
-    user : 'aneagoie',
-    password : '',
-    database : 'smart-brain'
-  }
+  connection: process.env.POSTGRES_URI
+  // connection: {
+  //   host : process.env.POSTGRES_HOST,
+  //   user : process.env.POSTGRES_USER,
+  //   password : process.env.POSTGRES_PASSWORD,
+  //   database : process.env.POSTGRES_DB
+  // }
 });
 
 const app = express();
 
+console.log('nodemon working through docker volumens');
 app.use(cors())
 app.use(bodyParser.json());
+app.use(morgan('combined'));
 
 app.get('/', (req, res)=> { res.send(db.users) })
 app.post('/signin', signin.handleSignin(db, bcrypt))
